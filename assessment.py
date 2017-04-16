@@ -86,7 +86,8 @@ class Student(object):
         self.first_name = first_name
         self.last_name = last_name
         self.address = address
-        # example in the instructions shows a single dictionary of all attributes
+        # example in instructions shows a single dictionary of all attributes
+        # adding a self.data dictionary that holds all attributes just in case!
         self.data = {
             'first_name': self.first_name,
             'last_name': self.last_name,
@@ -103,6 +104,8 @@ class Question(object):
     def __init__(self, question, correct_answer):
         self.question = question
         self.correct_answer = correct_answer
+        # example in instructions shows a single dictionary of all attributes
+        # adding a self.data dictionary that holds all attributes just in case!
         self.data = {
             'question': self.question,
             'correct_answer': self.correct_answer
@@ -118,6 +121,8 @@ class Exam(object):
     def __init__(self, name):
         self.questions = []
         self.name = name
+        # example in instructions shows a single dictionary of all attributes
+        # adding a self.data dictionary that holds all attributes just in case!
         self.data = {
             'name': self.name,
             'questions': self.questions
@@ -126,9 +131,9 @@ class Exam(object):
     def __repr__(self):
         return "List of dictionaries, each w/ an exam question & correct answer."
 
-    def add_question(self, question):
-        self.questions.append({ "question": question.question,
-                                "correct_answer": question.correct_answer})
+    def add_question(self, question, correct_answer):
+        q_a = Question(question, correct_answer)
+        self.questions.append(q_a.data)
 
     def ask_and_evaluate(self, i=-1):    # defaults to last question added
         question = self.questions[i]['question']
@@ -149,7 +154,8 @@ class Exam(object):
                 questions_correct += 1
 
         score = 100 * float(questions_correct) / questions_asked
-        print score
+
+        return score
 
 
 class Quiz(Exam):
@@ -158,36 +164,50 @@ class Quiz(Exam):
     def __repr__(self):
         return "List of dictionaries, each w/ a quiz question & correct answer."
 
+    def administer(self):
+        score = super(Quiz, self).administer()
+        if score > 50:
+            return 1
+        else:
+            return 0
+
 
 class StudentExam(object):
     """ An exam taken by a student. """
 
     def __init__(self, student, exam):
-        self.name = student.first_name
+        self.student = student
         self.exam = exam
         self.score = None
 
     def __repr__(self):
-        return "A student's name, an exam they took, and their score on the exam"
+        return "A student, an exam they took, and their score on the exam"
 
     def take_test(self):
-        self.exam.administer()
+        self.score = self.exam.administer()
+        print self.score
+
+
+class StudentQuiz(StudentExam):
+    """ A quiz taken by a student. """
+
+    def __repr__(self):
+        return "A student's name, a quiz they took, and their score on the quiz"
+
+    # thought: seems somewhat unnecessary to make this StudentQuiz subclass,
+    # since it has no changes to the parent class (besides doctstring and repr).
 
 
 def example():
     """ Creates an exam and a student, then administers the exam to the student. """
 
-    student = Student('Michela', 'Bestwick', '235 Mallorca Way')
-
-    q1 = Question("What is the capitol of California?", "Sacramento")
-    q2 = Question("Who won the 1989 World Series?", "Oakland A's")
-    q3 = Question("What was Ronald Reagan's favorite candy?", "jelly beans")
-
     midterm = Exam('midterm')
 
-    midterm.add_question(q1)
-    midterm.add_question(q2)
-    midterm.add_question(q3)
+    midterm.add_question("What is the capitol of California?", "Sacramento")
+    midterm.add_question("Who won the 1989 World Series?", "Oakland A's")
+    midterm.add_question("What's Ronald Reagan's favorite candy?", "jelly beans")
+
+    student = Student('Michela', 'Bestwick', '235 Mallorca Way')
 
     student_exam = StudentExam(student, midterm)
 
@@ -197,19 +217,20 @@ def example():
 example()
 
 
+def quiz_example():
+    """ Creates a quiz and a student, then administers the quiz to the student. """
+
+    quiz1 = Quiz('quiz1')
+
+    quiz1.add_question("What is the capitol of California?", "Sacramento")
+    quiz1.add_question("Who won the 1989 World Series?", "Oakland A's")
+    quiz1.add_question("What's Ronald Reagan's favorite candy?", "jelly beans")
+
+    student = Student('Michela', 'Bestwick', '235 Mallorca Way')
+
+    student_quiz = StudentQuiz(student, quiz1)
+
+    student_quiz.take_test()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+quiz_example()
