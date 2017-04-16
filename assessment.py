@@ -46,15 +46,15 @@ Part 1: Discussion
    a class occurs, that instance immediately holds each of the class attributes.
    However, if you explicitly assign an instance its own particular attribute,
    then it has an instance attribute that is unique from other instances of the
-   class.
+   same class.
    For example, if we have a Student class
 
             class Student(object):
                 profession = "student"
                 job = "to learn"
 
-    then every instance of Student has the class attributes profession and job,
-    and the value is the same for each.
+    then every new instance of Student has the class attributes profession and
+    job, and the value is the same for each.
 
     But, say one of your instances (joe) decides to get a job in the cafeteria.
     You would do the following:
@@ -95,7 +95,8 @@ class Student(object):
             }
 
     def __repr__(self):
-        return "A student with a first name, last name, and address."
+        return "Name: {} {}; Address: {}".format(self.first_name, self.last_name,
+                                                    self.address)
 
 
 class Question(object):
@@ -112,7 +113,14 @@ class Question(object):
             }
 
     def __repr__(self):
-        return "A question and a correct answer."
+        return "Question: {}; Answer: {}".format(self.question, self.correct_answer)
+
+    def ask_and_evaluate(self):
+        user_answer = raw_input("{} > ".format(self.question))
+        if user_answer == self.correct_answer:
+            return True
+        else:
+            return False
 
 
 class Exam(object):
@@ -129,28 +137,19 @@ class Exam(object):
             }
 
     def __repr__(self):
-        return "List of dictionaries, each w/ an exam question & correct answer."
+        return "Name: {}\nQuestions: {}".format(self.name, self.questions)
 
     def add_question(self, question, correct_answer):
         q_a = Question(question, correct_answer)
-        self.questions.append(q_a.data)
-
-    def ask_and_evaluate(self, i=-1):    # defaults to last question added
-        question = self.questions[i]['question']
-        correct_answer = self.questions[i]['correct_answer']
-        user_answer = raw_input("{} > ".format(question))
-        if user_answer == correct_answer:
-            return True
-        else:
-            return False
+        self.questions.append(q_a)
 
     def administer(self):
         questions_asked = 0
         questions_correct = 0
 
-        for i in range(len(self.questions)):
+        for question in self.questions:
             questions_asked += 1
-            if self.ask_and_evaluate(i) is True:
+            if question.ask_and_evaluate() is True:
                 questions_correct += 1
 
         score = 100 * float(questions_correct) / questions_asked
@@ -161,12 +160,9 @@ class Exam(object):
 class Quiz(Exam):
     """ A quiz. """
 
-    def __repr__(self):
-        return "List of dictionaries, each w/ a quiz question & correct answer."
-
     def administer(self):
         score = super(Quiz, self).administer()
-        if score > 50:
+        if score >= 50:
             return 1
         else:
             return 0
@@ -181,7 +177,7 @@ class StudentExam(object):
         self.score = None
 
     def __repr__(self):
-        return "A student, an exam they took, and their score on the exam"
+        return "Student: {}\nExam: {}".format(self.student, self.exam)
 
     def take_test(self):
         self.score = self.exam.administer()
@@ -192,7 +188,7 @@ class StudentQuiz(StudentExam):
     """ A quiz taken by a student. """
 
     def __repr__(self):
-        return "A student's name, a quiz they took, and their score on the quiz"
+        return "Student: {}\nQuiz: {}".format(self.student, self.exam)
 
     # thought: seems somewhat unnecessary to make this StudentQuiz subclass,
     # since it has no changes to the parent class (besides doctstring and repr).
@@ -213,8 +209,8 @@ def example():
 
     student_exam.take_test()
 
-
-example()
+# print "********************\nEXAM:\n********************"
+# example()
 
 
 def quiz_example():
@@ -232,5 +228,5 @@ def quiz_example():
 
     student_quiz.take_test()
 
-
-quiz_example()
+# print "\n********************\nQUIZ:\n********************"
+# quiz_example()
